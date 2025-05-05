@@ -1,0 +1,106 @@
+@startuml Municipality_SDG_Tracker_Use_Case_Diagram
+
+skinparam monochrome true
+skinparam usecase {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+}
+
+' Actors
+actor Admin as "Admin\n(System Administrator)"
+actor Worker as "Worker\n(Field Personnel)"
+actor "Municipality Head" as MunicipalityHead
+actor System as "System\n(Automated Processes)"
+
+' Use Cases grouped by functionality
+rectangle "Authentication" {
+  usecase "UC1: Login" as UC_Login
+  usecase "UC2: Logout" as UC_Logout
+}
+
+rectangle "User Management" {
+  usecase "UC3: Manage Users" as UC_ManageUsers
+  usecase "UC4: Add User" as UC_AddUser
+  usecase "UC5: Edit User" as UC_EditUser
+  usecase "UC6: Delete User" as UC_DeleteUser
+}
+
+rectangle "Waste Submission" {
+  usecase "UC7: Submit Waste Entry" as UC_SubmitWaste
+  usecase "UC8: Submit Normal Waste" as UC_SubmitNormal
+  usecase "UC9: Submit Construction Waste" as UC_SubmitConstruction
+  usecase "UC10: Add New Location" as UC_AddLocation
+}
+
+rectangle "Waste Management" {
+  usecase "UC11: Manage Waste Entries" as UC_ManageWaste
+  usecase "UC12: Approve Entry" as UC_ApproveWaste
+  usecase "UC13: Reject Entry" as UC_RejectWaste
+  usecase "UC14: Edit Entry" as UC_EditWaste
+  usecase "UC15: Delete Entry" as UC_DeleteWaste
+}
+
+rectangle "Reporting" {
+  usecase "UC16: View Dashboard" as UC_ViewDashboard
+  usecase "UC17: Calculate SDG Metrics" as UC_CalculateSDG
+}
+
+' Actor-Use Case Relationships
+Admin --> UC_ManageUsers
+Admin --> UC_Login
+Admin --> UC_Logout
+
+Worker --> UC_SubmitWaste
+Worker --> UC_Login
+Worker --> UC_Logout
+
+MunicipalityHead --> UC_ManageWaste
+MunicipalityHead --> UC_ViewDashboard
+MunicipalityHead --> UC_SubmitWaste
+MunicipalityHead --> UC_Login
+MunicipalityHead --> UC_Logout
+
+System --> UC_CalculateSDG
+
+' Include/Extend Relationships
+UC_ManageUsers .> UC_AddUser : <<include>>
+UC_ManageUsers .> UC_EditUser : <<include>>
+UC_ManageUsers .> UC_DeleteUser : <<include>>
+
+UC_SubmitWaste .> UC_SubmitNormal : <<include>>
+UC_SubmitWaste .> UC_SubmitConstruction : <<include>>
+UC_SubmitWaste ..> UC_AddLocation : <<extend>>\nif new location
+
+UC_ManageWaste .> UC_ApproveWaste : <<include>>
+UC_ManageWaste .> UC_RejectWaste : <<include>>
+UC_ManageWaste .> UC_EditWaste : <<include>>
+UC_ManageWaste .> UC_DeleteWaste : <<include>>
+
+UC_ViewDashboard ..> UC_CalculateSDG : <<extend>>
+
+' Notes
+note top of UC_ManageUsers
+  • Add/Edit/Delete users
+  • Assign roles (Admin, Worker, Municipality Head)
+end note
+
+note right of UC_SubmitWaste
+  • Normal waste: textiles, glass, etc.
+  • Construction waste: wood, debris
+  • Requires location data
+end note
+
+note left of UC_ManageWaste
+  • Review pending entries
+  • Approve/Reject with comments
+  • Edit incorrect submissions
+end note
+
+note bottom of UC_ViewDashboard
+  • Real-time waste metrics
+  • SDG 11.6.1 progress
+  • Historical trends
+end note
+
+@enduml
