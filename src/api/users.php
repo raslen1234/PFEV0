@@ -11,19 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     echo json_encode(['message' => 'OPTIONS request handled']);
     exit;
 }
-
+//f(x) debug log ll erors mt3 denial
 function debugLog($message) {
     file_put_contents('debug.log', date('Y-m-d H:i:s') . " - " . $message . "\n", FILE_APPEND);
 }
-
+// session start l save mt3 info
 session_start([
     'cookie_httponly' => true,
-    'cookie_secure' => false, // Set to false for local testing
-    'cookie_samesite' => 'Strict',
-    'cookie_path' => '/', // Ensure cookie is available across the app
+    'cookie_secure' => false, // http barka allah ghaleb
+    'cookie_samesite' => 'Strict',//securitybest practices ll cookie 
+    'cookie_path' => '/', // net2ked m cookie dima mawjouda 3al toul session
 ]);
 
-// Check if the user is an admin for actions other than login
+// chouf ken user admin wale sinon be3 w rawh
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || (isset($_POST['action']) && $_POST['action'] !== 'login' && $_POST['action'] !== 'add')) {
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         http_response_code(403);
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || (isset($_POST['action']) && $_POST[
         exit;
     }
 }
-
+//ken request post ()
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
 
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Login logic (no action or action=login, requires only username and password)
+    // Logic login + verif data mba3ed
     if (!isset($data['action']) || $data['action'] === 'login') {
         if (!isset($data['username']) || !isset($data['password'])) {
             http_response_code(400);
@@ -51,17 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             debugLog("Login failed: Invalid input");
             exit;
         }
-
+        // verif data
         $username = trim($data['username']);
         $password = $data['password'];
-
+        // famch input 
         if (empty($username) || empty($password)) {
             http_response_code(400);
             echo json_encode(['error' => 'Username and password cannot be empty']);
             debugLog("Login failed: Empty username or password");
             exit;
         }
-
+        // looking for users fl db mt3na 
         try {
             $stmt = $pdo->prepare("SELECT user_id, username, password, role FROM users WHERE username = :username");
             $stmt->execute(['username' => $username]);
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             debugLog("Login failed: Database error - " . $e->getMessage());
             exit;
         }
-
+        // fx debug log zeda + psw shih ken T3ADA!!
         if ($user) {
             debugLog("Password verify for $username: input=$password, db_hash=" . $user['password']);
             if (password_verify($password, $user['password'])) {
@@ -83,9 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'username' => $user['username'],
                     'role' => $user['role'],
                 ];
-
+                //deb log
                 debugLog("User logged in: user_id={$user['user_id']}, username={$user['username']}, role={$user['role']}");
-
+                //login cv json 3al reset
                 echo json_encode([
                     'message' => 'Login successful',
                     'user' => [
@@ -105,18 +105,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             debugLog("Login failed: User $username not found");
         }
     } elseif ($data['action'] === 'add') {
-        // Add new user (admin action)
+        // zid  user (ADMIN BARKAAAA)
         if (!isset($data['username']) || !isset($data['password']) || !isset($data['role'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Invalid input: Username, password, and role are required']);
             debugLog("Add user failed: Invalid input");
             exit;
         }
-
+        // nadef username la9adr allah 8lat 
         $username = trim($data['username']);
         $password = $data['password'];
         $role = $data['role'];
-
+        // form fer8a
         if (empty($username) || empty($password) || empty($role)) {
             http_response_code(400);
             echo json_encode(['error' => 'All fields are required']);
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            // Check if username already exists
+            // ken user mawjoud wale 
             $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
             $stmt->execute(['username' => $username]);
             if ($stmt->fetch()) {
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 debugLog("Add user failed: Username $username already exists");
                 exit;
             }
-
+            // security l hasshing psw mt3 l base (algo btc)
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (:username, :password, :role)");
             $stmt->execute([
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         debugLog("POST failed: Invalid action - " . ($data['action'] ?? 'none'));
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Fetch all users (admin only)
+    // Fetch l users kol fl admin panel (list  users)
     try {
         $stmt = $pdo->query("SELECT user_id, username, role FROM users");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         debugLog("Fetch users failed: Database error - " . $e->getMessage());
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // Delete a user (admin only)
+    // fasa5 user(del user)
     if (!isset($_GET['id'])) {
         http_response_code(400);
         echo json_encode(['error' => 'User ID required']);
@@ -194,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         debugLog("Delete failed: Database error - " . $e->getMessage());
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    // Update a user (admin only)
+    // mise a jour user (update only)
     $data = json_decode(file_get_contents('php://input'), true);
 
     if (!$data || !isset($data['user_id']) || !isset($data['username']) || !isset($data['role'])) {
@@ -210,8 +210,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = isset($data['password']) && !empty($data['password']) ? password_hash($data['password'], PASSWORD_DEFAULT) : null;
 
     try {
-        // Check if the username already exists for a different user
+        
+        //ken user mawjouda deja zenti theb tbadel wla tzid
+        //prep request 
         $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username AND user_id != :user_id");
+        //exec
         $stmt->execute(['username' => $username, 'user_id' => $user_id]);
         if ($stmt->fetch()) {
             http_response_code(409);
@@ -236,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'user_id' => $user_id,
             ]);
         }
-
+        //msg ll update raw sar fl base de donne 
         if ($stmt->rowCount() > 0) {
             echo json_encode(['message' => 'User updated successfully']);
             debugLog("User updated: user_id=$user_id, username=$username, role=$role");

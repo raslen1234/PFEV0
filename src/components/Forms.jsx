@@ -21,7 +21,7 @@ export default function Forms({ user }) {
     location_name: '',
     date: '',
     waste_category: 'construction',
-    controlled_facility: false, // zid control facility ya raseln !!!!!!!!!!!!!
+    controlled_facility: false,
   });
   const [locations, setLocations] = useState([]);
   const [activeTab, setActiveTab] = useState('normal');
@@ -48,8 +48,23 @@ export default function Forms({ user }) {
     fetchData();
   }, []);
 
+  // Shared validation function for negative numbers
+  const validateQuantity = (quantity) => {
+    if (parseFloat(quantity) < 0) {
+      setError('Negative number');
+      return false;
+    }
+    return true;
+  };
+
   const handleNormalWasteSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate quantity for Normal Waste
+    if (!validateQuantity(normalWasteData.quantity)) {
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost/municipality-sdg-tracker/municipality-sdg-tracker/src/api/waste_entries.php', {
         method: 'POST',
@@ -64,12 +79,13 @@ export default function Forms({ user }) {
           waste_category: normalWasteData.waste_category,
           household_waste: normalWasteData.waste_category === 'household' ? normalWasteData.quantity : null,
           non_household_waste: normalWasteData.waste_category === 'non_household' ? normalWasteData.quantity : null,
-          controlled_facility: normalWasteData.controlled_facility ? 1 : 0, // Convert boolean to 1/0 for backend
+          controlled_facility: normalWasteData.controlled_facility ? 1 : 0,
           waste_subtype: normalWasteData.waste_subtype,
         }),
       });
       if (response.ok) {
         setSuccess('Normal waste entry submitted successfully');
+        setError(''); // Clear error on success
         setNormalWasteData({
           waste_type_id: 1,
           waste_subtype: '',
@@ -95,6 +111,12 @@ export default function Forms({ user }) {
 
   const handleConstructionWasteSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate quantity for Construction Waste
+    if (!validateQuantity(constructionWasteData.quantity)) {
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost/municipality-sdg-tracker/municipality-sdg-tracker/src/api/waste_entries.php', {
         method: 'POST',
@@ -107,12 +129,13 @@ export default function Forms({ user }) {
           quantity: constructionWasteData.quantity,
           date: constructionWasteData.date,
           waste_category: constructionWasteData.waste_category,
-          controlled_facility: constructionWasteData.controlled_facility ? 1 : 0, // Convert boolean to 1/0 for backend
+          controlled_facility: constructionWasteData.controlled_facility ? 1 : 0,
           waste_subtype: constructionWasteData.waste_subtype,
         }),
       });
       if (response.ok) {
         setSuccess('Construction waste entry submitted successfully');
+        setError(''); // Clear error on success
         setConstructionWasteData({
           waste_type_id: 2,
           waste_subtype: '',
@@ -136,6 +159,7 @@ export default function Forms({ user }) {
     }
   };
 
+  // The JSX (return statement) remains unchanged
   return (
     <Container className="my-5">
       <Card className="shadow-lg">

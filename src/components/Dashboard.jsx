@@ -328,7 +328,7 @@ export default function Dashboard({ user }) {
         setTotalWaste(total);
         setLandfillWaste(landfill);
         setDivertedWaste(diverted);
-        // Note: No success message for reject since it removes the entry, but you can add one if desired
+        setSuccess('Entry rejected successfully!');
       } else {
         setError('Failed to reject entry');
       }

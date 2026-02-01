@@ -38,7 +38,7 @@ export default function Nav({ user, setUser }) {
                 Users
               </BootstrapNav.Link>
             )}
-            {user && user.role === 'worker' && null} {/* No links for worker */}
+            {user && user.role === 'worker' && null} {/* famch link ll worker !!!! */}
           </BootstrapNav>
           {user && (
             <Button variant="outline-dark" onClick={handleLogout}>

@@ -2,11 +2,11 @@
 require_once 'db_connect.php';
 
 try {
-    // Fetch all users
+    // Fetch users kol
     $stmt = $pdo->query("SELECT user_id, username, password FROM users");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Update each user's password to a hashed version
+    // Hash password li deja mawjoud
     $updateStmt = $pdo->prepare("UPDATE users SET password = :password WHERE user_id = :user_id");
 
     foreach ($users as $user) {
