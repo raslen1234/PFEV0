@@ -27,5 +27,17 @@ Official plugins:
 - `@vitejs/plugin-react` (Babel)
 - `@vitejs/plugin-react-swc` (SWC)
 
+## 🗄️ Database Setup
+
+1. **Start XAMPP/WAMP** and open phpMyAdmin
+2. **Create a new database** named `waste_management`
+3. **Import** the SQL file from `database/waste_management.sql`
+4. **Update your database connection file** (e.g., `connection.php`):
+   ```php
+   $host = 'localhost';
+   $user = 'root';
+   $password = '';
+   $dbname = 'waste_management';
+
 ## Author
 **Raslen Kasmi**
